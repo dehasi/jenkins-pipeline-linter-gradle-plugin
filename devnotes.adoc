@@ -1,0 +1,37 @@
+= Dev notes
+
+== To Publish to `.m2`
+
+* Add `META-INF/${package}.properties` file
+* Add `id("maven-publish")` and `id("java-gradle-plugin")` plugins
+
+
+== To use from local `.m2`
+
+Add to `settings.gradle`
+[source, groovy]
+----
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+----
+
+Add to `build.gradle`
+----
+plugins {
+    id 'me.dehasi.jenkinsfile-linter-plugin' version 'LATEST-SNAPSHOT'
+}
+----
+
+== To Run
+----
+$ gradle --quiet lint
+Hello from the jenkinsfile
+----
+
+== ToDo
+.todo
+- [ ] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
