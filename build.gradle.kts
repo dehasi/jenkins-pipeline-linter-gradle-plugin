@@ -27,7 +27,7 @@ gradlePlugin {
     plugins {
         create("jenkins-pipeline-linter-gradle-plugin") {
             id = "me.dehasi.jenkins-pipeline-linter-gradle-plugin"
-            implementationClass = "me.dehasi.jenkins.linter.Linter"
+            implementationClass = "me.dehasi.jenkins.linter.LinterPlugin"
         }
     }
 }

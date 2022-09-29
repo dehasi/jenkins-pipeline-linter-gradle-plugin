@@ -19,7 +19,7 @@ gradlePlugin {
 
 == Use from local `.m2`
 
-Add to `settings.gradle`
+Add to `settings.gradle.kts`
 [source, groovy]
 ----
 pluginManagement {
@@ -48,10 +48,15 @@ To run groovy tests add plugin `id("groovy")`.
 
 Don't know if `testImplementation(gradleTestKit())` is needed. Test work without it.
 
+== Parametrisation
+First `project.extensions.create` then `project.tasks.register` otherwise Gradle doesn't have a change to resolve parameters.
+
 == ToDo
 .todo
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
 - [x] Add unit-tests
-- [ ] Add properties: path to jenkinsfiles, fail the build or not
+- [x] Add parametrisation
+- [ ] Resolve project dir for parameters
+- [ ] Add properties: path to jenkinsfiles, fail the build or not, etc.
 - [ ] Maybe rewrite tests to kotlin
 - [ ] Find less broad name for the task, current "lint" is too broad
