@@ -1,12 +1,23 @@
 = Dev notes
 
-== To Publish to `.m2`
+== Publish to `.m2`
 
-* Add `META-INF/${package}.properties` file
 * Add `id("maven-publish")` and `id("java-gradle-plugin")` plugins
 
+Set up plugin id
+[source, groovy]
+----
+gradlePlugin {
+    plugins {
+        create("jenkins-pipeline-linter-gradle-plugin") {
+            id = "me.dehasi.jenkins-pipeline-linter-gradle-plugin"
+            implementationClass = "me.dehasi.jenkins.linter.Linter"
+        }
+    }
+}
+----
 
-== To use from local `.m2`
+== Use from local `.m2`
 
 Add to `settings.gradle`
 [source, groovy]
@@ -22,16 +33,25 @@ pluginManagement {
 Add to `build.gradle`
 ----
 plugins {
-    id 'me.dehasi.jenkinsfile-linter-plugin' version 'LATEST-SNAPSHOT'
+    id 'me.dehasi.jenkins-pipeline-linter-gradle-plugin' version 'LATEST-SNAPSHOT'
 }
 ----
 
-== To Run
+== Run
 ----
 $ gradle --quiet lint
 Hello from the jenkinsfile
 ----
 
+== Test
+To run groovy tests add plugin `id("groovy")`.
+
+Don't know if `testImplementation(gradleTestKit())` is needed. Test work without it.
+
 == ToDo
 .todo
-- [ ] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
+- [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
+- [x] Add unit-tests
+- [ ] Add properties: path to jenkinsfiles, fail the build or not
+- [ ] Maybe rewrite tests to kotlin
+- [ ] Find less broad name for the task, current "lint" is too broad
