@@ -56,7 +56,12 @@ First `project.extensions.create` then `project.tasks.register` otherwise Gradle
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
 - [x] Add unit-tests
 - [x] Add parametrisation
-- [ ] Resolve project dir for parameters
-- [ ] Add properties: path to jenkinsfiles, fail the build or not, etc.
-- [ ] Maybe rewrite tests to kotlin
+- [x] Resolve project dir for parameters
+- [X] Update ignored unit-tests
+- [ ] Start jenkins in docker
+- [ ] Connect to jenkins
+- [x] Add properties: path to jenkinsfiles.
+- [ ] Add properties: authorisation to jenkins, fail the build or not, etc.
 - [ ] Find less broad name for the task, current "lint" is too broad
+- [ ] *Maybe* Add jenkins as test container
+- [ ] *Maybe* rewrite tests to kotlin

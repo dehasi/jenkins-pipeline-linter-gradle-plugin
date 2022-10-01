@@ -1,11 +1,11 @@
 package me.dehasi.jenkins.linter
 
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 
 abstract class LinterExtension {
-    abstract val message: Property<String>
+    abstract val pipelinePath: SetProperty<String>
 
     init {
-        message.convention("No value set to this property")
+        pipelinePath.convention(HashSet())
     }
 }
