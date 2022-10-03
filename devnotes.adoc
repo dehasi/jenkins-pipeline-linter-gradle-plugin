@@ -51,15 +51,57 @@ Don't know if `testImplementation(gradleTestKit())` is needed. Test work without
 == Parametrisation
 First `project.extensions.create` then `project.tasks.register` otherwise Gradle doesn't have a change to resolve parameters.
 
+
+== Jenkins
+To validate pipeline, Jenkins need `pipeline-model-definition` plugin. Official docker images goes without plugins.
+I created my customised docker image with this plugin based on https://www.jenkins.io/doc/book/installing/docker/::[official instruction].
+
+My Dockerfile (mostly copy-pasted from official instruction):
+
+[source, dockerfile]
+----
+include::src/test/resources/Dockerfile[]
+----
+
+We need to turn off `setup wizard` and set password form environment variables.
+
+[source, bash]
+----
+docker run --rm --detach --name myjenkins \
+  --env JENKINS_OPTS='--argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin' \
+  --env JAVA_OPTS='-Djenkins.install.runSetupWizard=false' \
+  --publish 8080:8080 \
+    myjenkins:2.361.1-1
+----
+
+Then we can call `/pipeline-model-converter/validate`.
+
+[source, bash]
+----
+curl --user admin:admin -X POST  -F "jenkinsfile=<jenkinsfile_valid" http://localhost:8080/pipeline-model-converter/validate
+Jenkinsfile successfully validated.
+
+curl --user admin:admin -X POST  -F "jenkinsfile=<jenkinsfile_not_valid" http://localhost:8080/pipeline-model-converter/validate
+WorkflowScript: 2: Not a valid section definition: "agent". Some extra configuration is required. @ line 2, column 3.
+     agent
+     ^
+
+WorkflowScript: 1: Missing required section "agent" @ line 1, column 1.
+   pipeline {
+   ^
+----
+
+I don't know what to do with Jenkins Crumble, it might be required.
+
 == ToDo
 .todo
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
 - [x] Add unit-tests
 - [x] Add parametrisation
 - [x] Resolve project dir for parameters
-- [X] Update ignored unit-tests
-- [ ] Start jenkins in docker
-- [ ] Connect to jenkins
+- [x] Update ignored unit-tests
+- [x] Start jenkins in docker
+- [ ] Connect to jenkins from code
 - [x] Add properties: path to jenkinsfiles.
 - [ ] Add properties: authorisation to jenkins, fail the build or not, etc.
 - [ ] Find less broad name for the task, current "lint" is too broad
