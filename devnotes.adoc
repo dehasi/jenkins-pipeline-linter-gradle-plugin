@@ -93,6 +93,12 @@ WorkflowScript: 1: Missing required section "agent" @ line 1, column 1.
 
 I don't know what to do with Jenkins Crumble, it might be required.
 
+== Java HTTP Client
+
+`BodyPublishers.ofString` doesn't replace `\n` to `\r\n`, which also surprised me.
+
+Boundary in multipart request can be arbitrary, I just took a nice String.
+
 == ToDo
 .todo
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
@@ -101,9 +107,12 @@ I don't know what to do with Jenkins Crumble, it might be required.
 - [x] Resolve project dir for parameters
 - [x] Update ignored unit-tests
 - [x] Start jenkins in docker
-- [ ] Connect to jenkins from code
+- [x] Connect to jenkins from code
 - [x] Add properties: path to jenkinsfiles.
-- [ ] Add properties: authorisation to jenkins, fail the build or not, etc.
+- [ ] Add properties: authorisation to jenkins, timeouts, fail the build or not, etc.
+- [ ] Combine task and jenkins gateway
+- [ ] Check with https
+- [ ] Add logging
 - [ ] Find less broad name for the task, current "lint" is too broad
 - [ ] *Maybe* Add jenkins as test container
-- [ ] *Maybe* rewrite tests to kotlin
+- [ ] *Maybe* rewrite functional tests to kotlin
