@@ -100,6 +100,28 @@ I don't know what to do with Jenkins Crumble, it might be required.
 
 Boundary in multipart request can be arbitrary, I just took a nice String.
 
+== Logging
+
+Gradle API has logger.
+
+[source, kotlin]
+----
+private val log: Logger = Logging.getLogger(LinterTask::class.java)
+----
+
+A task can get logger from `super.getLogger()` or just use `logger` variable. The following logger levels are enabled.
+
+----
+DEBUG.isEnabled=false
+INFO.isEnabled=false
+LIFECYCLE.isEnabled=true
+WARN.isEnabled=true
+QUIET.isEnabled=true
+ERROR.isEnabled=true
+----
+
+Log level can be put as argument `.withArguments(LINT_TASK_NAME, "--info")`
+
 == ToDo
 .todo
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
@@ -115,9 +137,10 @@ Boundary in multipart request can be arbitrary, I just took a nice String.
 - [ ] Add more properties, like fail the build or not, crumble, ignore ssl, etc.
 - [ ] Add an assertion that all necessary properties are set
 - [ ] Check with https
-- [ ] Add logging
+- [x] Add logging
 - [ ] Find less broad name for the task, current "lint" is too broad
 - [ ] *Maybe* Add jenkins as test container, extract some functional tests to unit tests maybe
 - [x] *Maybe* rewrite functional tests to kotlin
 - [ ] Use nice assertions, like assertj
 - [ ] Use jenkins crumble
+- [ ] Add debug/trace logging

@@ -14,7 +14,7 @@ abstract class LinterTask : DefaultTask() {
     private var errors = 0;
     @TaskAction fun lint() {
         val paths = getPipelinePath().get()
-        println("Validating ${paths.size} files")
+        logger.lifecycle("Validating {} files", paths.size)
 
         errors = 0
         paths
@@ -24,30 +24,31 @@ abstract class LinterTask : DefaultTask() {
         assert(errors == 0) {
             "$errors during validation jenkins files"
         }
+        logger.lifecycle("Validating finished")
     }
 
     private fun validate(file: File) {
-        println("Validating '$file'")
+        logger.lifecycle("Validating '{}'", file)
         file.forEachLine { println(it) }
         val jenkinsGateway = getJenkinsGateway().get()
         try {
             val result = jenkinsGateway.validate(file.readText())
-            println(result)
+            logger.lifecycle(result)
             if (!result.contains("Jenkinsfile successfully validated"))
                 ++errors
         } catch (e: Exception) {
             ++errors
-            e.printStackTrace()
+            logger.error("{}", e)
         }
     }
 
     private fun fileExists(file: File): Boolean {
         if (!file.exists()) {
-            println("File '$file' does not exist. Skipping")
+            logger.warn("File '{}' does not exist. Skipping", file)
             return false
         }
         if (file.isDirectory) {
-            println("File '$file' is a directory. Skipping")
+            logger.warn("File '{}' is a directory. Skipping", file)
             return false
         }
         return true

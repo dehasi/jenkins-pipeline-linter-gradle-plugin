@@ -54,7 +54,7 @@ internal class LinterPluginFunctionalTest {
 
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments(LINT_TASK_NAME)
+            .withArguments(LINT_TASK_NAME, "--info")
             .withPluginClasspath()
             .build()
 
