@@ -110,8 +110,10 @@ Boundary in multipart request can be arbitrary, I just took a nice String.
 - [x] Start jenkins in docker
 - [x] Connect to jenkins from code
 - [x] Add properties: path to jenkinsfiles.
-- [ ] Add properties: authorisation to jenkins, timeouts, fail the build or not, etc.
-- [ ] Combine task and jenkins gateway
+- [x] Add properties: authorisation to jenkins, timeouts
+- [x] Combine task and jenkins gateway
+- [ ] Add more properties, like fail the build or not, crumble, ignore ssl, etc.
+- [ ] Add an assertion that all necessary properties are set
 - [ ] Check with https
 - [ ] Add logging
 - [ ] Find less broad name for the task, current "lint" is too broad

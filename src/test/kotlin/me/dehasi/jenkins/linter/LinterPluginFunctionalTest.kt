@@ -40,6 +40,30 @@ internal class LinterPluginFunctionalTest {
         assert(result.task(":${LINT_TASK_NAME}")?.outcome == SUCCESS) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
     }
 
+    @Test fun `lint prints all settings`() {
+        gradleBuildFile.appendText("""
+            $SETTINGS_ROOT {
+                 pipelinePath = ['path/to/jenkinsfile']
+                 jenkins {
+                    url = 'http://jenkins.example'
+                    username = 'jenkins_username'
+                    password = 'jenkins_password'
+                 }
+            }
+        """)
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments(LINT_TASK_NAME)
+            .withPluginClasspath()
+            .build()
+
+        assert(result.output.contains("url=http://jenkins.example")) { "result.output=${result.output}" }
+        assert(result.output.contains("username=jenkins_username")) { "result.output=${result.output}" }
+        assert(result.output.contains("password=jenkins_password")) { "result.output=${result.output}" }
+        assert(result.task(":${LINT_TASK_NAME}")?.outcome == SUCCESS) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
+    }
+
     @Test fun `lint prints file content`() {
         val jenkinsFile = File(testProjectDir, "jenkinsfile")
         jenkinsFile.writeText("""
@@ -48,6 +72,11 @@ internal class LinterPluginFunctionalTest {
         gradleBuildFile.appendText("""
             $SETTINGS_ROOT {
                  pipelinePath = ['jenkinsfile']
+                 jenkins {
+                    url = 'http://localhost:8080'
+                    username = 'admin'
+                    password = 'admin'
+                 }
             }
         """)
 
