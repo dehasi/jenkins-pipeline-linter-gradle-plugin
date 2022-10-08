@@ -49,7 +49,7 @@ To run groovy tests add plugin `id("groovy")`.
 Don't know if `testImplementation(gradleTestKit())` is needed. Test work without it.
 
 == Parametrisation
-First `project.extensions.create` then `project.tasks.register` otherwise Gradle doesn't have a change to resolve parameters.
+First `project.extensions.create` then `project.tasks.register` otherwise Gradle doesn't have a chance to resolve parameters.
 
 
 == Jenkins
@@ -75,6 +75,7 @@ docker run --rm --detach --name myjenkins \
 ----
 
 Then we can call `/pipeline-model-converter/validate`.
+Filename in the multipart request must be `jenkinsfile` (lowercase).
 
 [source, bash]
 ----
@@ -114,5 +115,7 @@ Boundary in multipart request can be arbitrary, I just took a nice String.
 - [ ] Check with https
 - [ ] Add logging
 - [ ] Find less broad name for the task, current "lint" is too broad
-- [ ] *Maybe* Add jenkins as test container
-- [ ] *Maybe* rewrite functional tests to kotlin
+- [ ] *Maybe* Add jenkins as test container, extract some functional tests to unit tests maybe
+- [x] *Maybe* rewrite functional tests to kotlin
+- [ ] Use nice assertions, like assertj
+- [ ] Use jenkins crumble
