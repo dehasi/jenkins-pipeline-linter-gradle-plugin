@@ -18,7 +18,7 @@ internal class LinterPluginFunctionalTest {
         gradleBuildFile = File(testProjectDir, "build.gradle")
         gradleBuildFile.writeText("""
             plugins {
-                 id 'me.dehasi.jenkins-pipeline-linter-gradle-plugin' version 'LATEST-SNAPSHOT'
+                 id 'me.dehasi.jenkins-pipeline-linter' version 'LATEST-SNAPSHOT'
             }
         """)
     }

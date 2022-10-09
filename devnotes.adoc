@@ -4,23 +4,54 @@
 
 * Add `id("maven-publish")` and `id("java-gradle-plugin")` plugins
 
-Set up plugin id
-[source, groovy]
+== Set Up Plugin Id
+I have to add `description` and `displayName`. Solution taken from JetBrains https://github.com/JetBrains/kotlin/tree/master/libraries/tools/kotlin-gradle-plugin[repository].
+
+[source,groovy]
 ----
 gradlePlugin {
     plugins {
-        create("jenkins-pipeline-linter-gradle-plugin") {
-            id = "me.dehasi.jenkins-pipeline-linter-gradle-plugin"
+        create("jenkins-pipeline-linter") {
+            id = "me.dehasi.jenkins-pipeline-linter"
             implementationClass = "me.dehasi.jenkins.linter.Linter"
+            description = pluginDescription // will need for publishing
+            displayName = pluginName // will need for publishing
         }
     }
 }
 ----
+`PluginMarkerMaven` creates a separate `pom` with `groupId`=`${PLUGIN_ID}` and `artifactId` = `${PLUGIN_ID}.gradle.plugin`.
+That's why there is no necessaty to have words "gradle" and "plugin" in the plugin id name.
+In my case:
+
+[source,xml]
+----
+<project>
+    <groupId>me.dehasi.jenkins-pipeline-linter</groupId>
+    <artifactId>me.dehasi.jenkins-pipeline-linter.gradle.plugin</artifactId>
+    <packaging>pom</packaging>
+</project>
+----
+
+This pom has the actual project as a dependency
+
+[source,xml]
+----
+<dependencies>
+    <dependency>
+      <groupId>me.dehasi</groupId>
+      <artifactId>jenkins-pipeline-linter-gradle-plugin</artifactId>
+      <version>2022.10.09</version>
+    </dependency>
+</dependencies>
+----
+
 
 == Use from local `.m2`
 
 Add to `settings.gradle.kts`
-[source, groovy]
+
+[source,groovy]
 ----
 pluginManagement {
     repositories {
@@ -31,41 +62,47 @@ pluginManagement {
 ----
 
 Add to `build.gradle`
+
 ----
 plugins {
-    id 'me.dehasi.jenkins-pipeline-linter-gradle-plugin' version 'LATEST-SNAPSHOT'
+    id 'me.dehasi.jenkins-pipeline-linter' version 'LATEST-SNAPSHOT'
 }
 ----
 
 == Run
+
 ----
 $ gradle --quiet lint
 Hello from the jenkinsfile
 ----
 
 == Test
+
 To run groovy tests add plugin `id("groovy")`.
 
-Don't know if `testImplementation(gradleTestKit())` is needed. Test work without it.
+Don't know if `testImplementation(gradleTestKit())` is needed.
+Test work without it.
 
 == Parametrisation
+
 First `project.extensions.create` then `project.tasks.register` otherwise Gradle doesn't have a chance to resolve parameters.
 
-
 == Jenkins
-To validate pipeline, Jenkins need `pipeline-model-definition` plugin. Official docker images goes without plugins.
+
+To validate pipeline, Jenkins need `pipeline-model-definition` plugin.
+Official docker images goes without plugins.
 I created my customised docker image with this plugin based on https://www.jenkins.io/doc/book/installing/docker/::[official instruction].
 
 My Dockerfile (mostly copy-pasted from official instruction):
 
-[source, dockerfile]
+[source,dockerfile]
 ----
 include::src/test/resources/Dockerfile[]
 ----
 
 We need to turn off `setup wizard` and set password form environment variables.
 
-[source, bash]
+[source,bash]
 ----
 docker run --rm --detach --name myjenkins \
   --env JENKINS_OPTS='--argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin' \
@@ -77,7 +114,7 @@ docker run --rm --detach --name myjenkins \
 Then we can call `/pipeline-model-converter/validate`.
 Filename in the multipart request must be `jenkinsfile` (lowercase).
 
-[source, bash]
+[source,bash]
 ----
 curl --user admin:admin -X POST  -F "jenkinsfile=<jenkinsfile_valid" http://localhost:8080/pipeline-model-converter/validate
 Jenkinsfile successfully validated.
@@ -104,12 +141,13 @@ Boundary in multipart request can be arbitrary, I just took a nice String.
 
 Gradle API has logger.
 
-[source, kotlin]
+[source,kotlin]
 ----
 private val log: Logger = Logging.getLogger(LinterTask::class.java)
 ----
 
-A task can get logger from `super.getLogger()` or just use `logger` variable. The following logger levels are enabled.
+A task can get logger from `super.getLogger()` or just use `logger` variable.
+The following logger levels are enabled.
 
 ----
 DEBUG.isEnabled=false
@@ -122,8 +160,165 @@ ERROR.isEnabled=true
 
 Log level can be put as argument `.withArguments(LINT_TASK_NAME, "--info")`
 
+== Publishing to Maven Central
+
+=== GPG Keys
+
+Check your key on https://keys.openpgp.org/[keys.openpgp.org]
+
+==== List your keys
+
+----
+gpg --list-keys
+/path/to/.gnupg/pubring.kbx
+-------------------------------
+pub   rsa2048 ${DATE} [SC] [expires: ${DATE}]
+      ${FINGERPRINT/KEYID}
+uid           [ultimate] ${NAME} <${EMAIL}>
+----
+
+==== Prolong if expired
+
+Period can be in `m` - months, `y` - years.
+
+----
+gpg --quick-set-expire ${FINGERPRINT}  5y
+----
+
+==== Upload key
+
+----
+gpg --export ${KEYID} | curl -T - https://keys.openpgp.org
+gpg --keyserver keyring.debian.org --send-keys ${KEYID}
+----
+
+=== Signing Jars
+
+If you don't use `useGpgCmd()` only following properties are needed.
+
+----
+signing.keyId=
+signing.password=
+signing.secretKeyRingFile=
+----
+
+We need to add and set up `signing` plugin.
+
+[source,kotlin]
+----
+plugins {
+    signing // <- need for signing
+}
+publishing {
+    publications.withType<MavenPublication> {
+        repositories {}
+        pom {}
+        the<SigningExtension>().sign(this) // <- need for signing
+    }
+}
+
+signing {
+    sign(configurations.archives.get())
+}
+----
+
+=== Creating jars
+
+We expect to have the following files
+
+----
+jenkins-pipeline-linter-gradle-plugin-${VERSION}.jar
+jenkins-pipeline-linter-gradle-plugin-${VERSION}.jar.asc
+jenkins-pipeline-linter-gradle-plugin-${VERSION}-javadoc.jar
+jenkins-pipeline-linter-gradle-plugin-${VERSION}-javadoc.jar.asc
+jenkins-pipeline-linter-gradle-plugin-${VERSION}-sources.jar
+jenkins-pipeline-linter-gradle-plugin-${VERSION}-sources.jar.asc
+----
+
+==== Jar
+
+Will be created automagically.
+
+==== Javadoc
+
+[source,kotlin]
+----
+val javadocJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+}
+----
+
+then
+
+[source,kotlin]
+----
+ publications.withType<MavenPublication> {
+        artifact(javadocJar)
+}
+----
+
+==== Sources
+
+[source,kotlin]
+----
+val sourcesJar: TaskProvider<Jar> by tasks.registering(Jar::class) {
+    archiveClassifier.set("sources")
+}
+----
+then
+[source,kotlin]
+----
+ publications.withType<MavenPublication> {
+        artifact(sourcesJar)
+}
+----
+
+=== Publishing
+
+[source,kotlin]
+----
+publishing {
+    publications.withType<MavenPublication> {
+    }
+}
+----
+
+The following properties are needed to connect to maven central (in my case).
+
+----
+ossrhUsername=
+ossrhPassword=
+----
+
+[source,kotlin]
+----
+repositories {
+    maven {
+        name = "OSSRH"
+        url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+        credentials {
+            username = project.property("ossrhUsername").toString()
+            password = project.property("ossrhPassword").toString()
+        }
+    }
+}
+----
+
 == ToDo
+
 .todo
+- [ ] Release to maven central
+- [ ] Add more properties, like fail the build or not, crumble, ignore ssl, etc.
+- [ ] Add an assertion that all necessary properties are set
+- [ ] Check with https
+- [ ] Find less broad name for the task, current "lint" is too broad
+- [ ] *Maybe* Add jenkins as test container, extract some functional tests to unit tests maybe
+- [ ] Use nice assertions, like assertj
+- [ ] Use jenkins crumble
+- [ ] Add debug/trace logging
+- [ ] Add readme
+
+.done
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
 - [x] Add unit-tests
 - [x] Add parametrisation
@@ -134,13 +329,5 @@ Log level can be put as argument `.withArguments(LINT_TASK_NAME, "--info")`
 - [x] Add properties: path to jenkinsfiles.
 - [x] Add properties: authorisation to jenkins, timeouts
 - [x] Combine task and jenkins gateway
-- [ ] Add more properties, like fail the build or not, crumble, ignore ssl, etc.
-- [ ] Add an assertion that all necessary properties are set
-- [ ] Check with https
 - [x] Add logging
-- [ ] Find less broad name for the task, current "lint" is too broad
-- [ ] *Maybe* Add jenkins as test container, extract some functional tests to unit tests maybe
 - [x] *Maybe* rewrite functional tests to kotlin
-- [ ] Use nice assertions, like assertj
-- [ ] Use jenkins crumble
-- [ ] Add debug/trace logging

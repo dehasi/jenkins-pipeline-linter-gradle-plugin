@@ -2,3 +2,5 @@
 .gradle
 build
 gradle/wrapper
+gradle.properties
+publish.log
