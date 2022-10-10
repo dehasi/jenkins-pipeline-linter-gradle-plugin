@@ -1,5 +1,7 @@
 package me.dehasi.jenkins.linter
 
+import me.dehasi.jenkins.linter.LinterExtension.ActionOnFailure
+import me.dehasi.jenkins.linter.LinterExtension.ActionOnFailure.WARNING
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
@@ -9,6 +11,7 @@ import java.io.File
 
 abstract class LinterTask : DefaultTask() {
     @Input abstract fun getPipelinePath(): SetProperty<String>
+    @Input abstract fun getActionOnFailure(): Property<ActionOnFailure>
     @Input abstract fun getJenkinsGateway(): Property<JenkinsGateway>
 
     private var errors = 0;
@@ -21,10 +24,13 @@ abstract class LinterTask : DefaultTask() {
             .map { toAbsoluteFile(it) }
             .filter { fileExists(it) }
             .forEach { validate(it) }
-        assert(errors == 0) {
-            "$errors during validation jenkins files"
+        logger.lifecycle("Validation finished")
+
+        if (errors != 0) {
+            val message = "$errors during validation jenkins pipelines"
+            if (getActionOnFailure().get() == WARNING) logger.warn(message)
+            else throw RuntimeException(message)
         }
-        logger.lifecycle("Validating finished")
     }
 
     private fun validate(file: File) {

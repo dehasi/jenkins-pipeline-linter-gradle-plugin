@@ -42,12 +42,17 @@ internal class LinterPluginFunctionalTest {
 
     @Test fun `lint prints all settings`() {
         gradleBuildFile.appendText("""
+            import static me.dehasi.jenkins.linter.LinterExtension.ActionOnFailure.WARNING
             $SETTINGS_ROOT {
                  pipelinePath = ['path/to/jenkinsfile']
+                 actionOnFailure = WARNING
                  jenkins {
                     url = 'http://jenkins.example'
                     username = 'jenkins_username'
                     password = 'jenkins_password'
+                    trustSelfSigned()
+                    ignoreCertificate()
+                    useCrumbIssuer()
                  }
             }
         """)
@@ -58,10 +63,18 @@ internal class LinterPluginFunctionalTest {
             .withPluginClasspath()
             .build()
 
+        assert(result.task(":${LINT_TASK_NAME}")?.outcome == SUCCESS) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
+
+        assert(result.output.contains("pipelinePath=[path/to/jenkinsfile]")) { "result.output=${result.output}" }
+        assert(result.output.contains("actionOnFailure=WARNING")) { "result.output=${result.output}" }
+
         assert(result.output.contains("url=http://jenkins.example")) { "result.output=${result.output}" }
         assert(result.output.contains("username=jenkins_username")) { "result.output=${result.output}" }
         assert(result.output.contains("password=jenkins_password")) { "result.output=${result.output}" }
-        assert(result.task(":${LINT_TASK_NAME}")?.outcome == SUCCESS) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
+
+        assert(result.output.contains("ignoreCertificate=true")) { "result.output=${result.output}" }
+        assert(result.output.contains("trustSelfSigned=true")) { "result.output=${result.output}" }
+        assert(result.output.contains("useCrumbIssuer=true")) { "result.output=${result.output}" }
     }
 
     @Test fun `lint prints file content`() {
@@ -70,8 +83,10 @@ internal class LinterPluginFunctionalTest {
             jenkinsfile content
         """)
         gradleBuildFile.appendText("""
+            import static me.dehasi.jenkins.linter.LinterExtension.ActionOnFailure.WARNING
             $SETTINGS_ROOT {
                  pipelinePath = ['jenkinsfile']
+                 actionOnFailure = WARNING
                  jenkins {
                     url = 'http://localhost:8080'
                     username = 'admin'

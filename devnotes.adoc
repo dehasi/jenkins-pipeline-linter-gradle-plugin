@@ -307,8 +307,7 @@ repositories {
 == ToDo
 
 .todo
-- [ ] Release to maven central
-- [ ] Add more properties, like fail the build or not, crumble, ignore ssl, etc.
+- [ ] Release to maven central or create a ticket like https://issues.sonatype.org/browse/OSSRH-58644[OSSRH-58644]
 - [ ] Add an assertion that all necessary properties are set
 - [ ] Check with https
 - [ ] Find less broad name for the task, current "lint" is too broad
@@ -317,6 +316,7 @@ repositories {
 - [ ] Use jenkins crumble
 - [ ] Add debug/trace logging
 - [ ] Add readme
+- [ ] Test Jenkins returning 404, 500.
 
 .done
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
@@ -331,3 +331,5 @@ repositories {
 - [x] Combine task and jenkins gateway
 - [x] Add logging
 - [x] *Maybe* rewrite functional tests to kotlin
+- [x] Add boolean properties: trustSelfSigned, ignoreCertificate, useCrumbIssuer
+- [x] Add property: onError: FAIL/WARING
