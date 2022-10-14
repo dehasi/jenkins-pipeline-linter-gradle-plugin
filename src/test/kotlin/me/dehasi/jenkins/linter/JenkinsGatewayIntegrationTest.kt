@@ -1,57 +1,37 @@
 package me.dehasi.jenkins.linter
 
+import me.dehasi.jenkins.linter.DependencyInjection.httpClient
+import me.dehasi.jenkins.linter.DependencyInjection.jenkinsGateway
+import me.dehasi.jenkins.linter.Jenkinsfiles.CORRECT_JENKINSFILE_CONTENT
+import me.dehasi.jenkins.linter.Jenkinsfiles.INCORRECT_JENKINSFILE_CONTENT
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.net.Authenticator
-import java.net.PasswordAuthentication
-import java.net.http.HttpClient
-import java.net.http.HttpClient.Version.HTTP_2
-import java.time.Duration
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 
+@Testcontainers
 internal class JenkinsGatewayIntegrationTest {
 
-    private val client = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(60))
-        .authenticator(object : Authenticator() {
-            override fun getPasswordAuthentication(): PasswordAuthentication {
-                return PasswordAuthentication("admin", "admin".toCharArray())
-            }
-        })
-        .version(HTTP_2)
-        .build()
-    private val jenkinsGateway = JenkinsGateway(client, "http://localhost:8080")
+    private val USERNAME = "admin"
+    private val PASSWORD = "admin"
+
+    @Container private val jenkins = JenkinsContainer()
+        .withUser(USERNAME, PASSWORD)
+
+    private lateinit var jenkinsGateway: JenkinsGateway
+
+    @BeforeEach fun createJenkinsGateway() {
+        jenkinsGateway = jenkinsGateway(httpClient(USERNAME, PASSWORD), "http://localhost:${jenkins.firstMappedPort}")
+    }
 
     @Test fun validate_validJenkinsfile_reportsSuccess() {
-        val jenkinsFile = """
-        pipeline {
-          agent any
-            stages {
-              stage ('Initialize') {
-              steps {
-                echo 'Placeholder.'
-              }
-            }
-          }
-        }""".trimIndent()
-
-        val response = jenkinsGateway.validate(jenkinsFile)
+        val response = jenkinsGateway.validate(CORRECT_JENKINSFILE_CONTENT)
 
         assert(response.contains("Jenkinsfile successfully validated.")) { "response=$response" }
     }
 
     @Test fun validate_notValidJenkinsfile_reportsError() {
-        val jenkinsFile = """
-        pipeline {
-          agent 
-            stages {
-              stage ('Initialize') {
-              steps {
-                echo 'Placeholder.'
-              }
-            }
-          }
-        }""".trimIndent()
-
-        val response = jenkinsGateway.validate(jenkinsFile)
+        val response = jenkinsGateway.validate(INCORRECT_JENKINSFILE_CONTENT)
 
         assert(response.contains("Errors encountered validating Jenkinsfile")) { "response=$response" }
     }

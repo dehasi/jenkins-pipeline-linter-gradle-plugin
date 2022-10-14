@@ -1,7 +1,7 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.5.31")
-    id("java-gradle-plugin")
-    id("maven-publish")
+    kotlin("jvm").version("1.5.31")
+    `java-gradle-plugin`
+    `maven-publish`
     signing
 }
 
@@ -15,7 +15,7 @@ if (isPublishing) {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
@@ -30,6 +30,9 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.0")
+
+    testImplementation("org.testcontainers:junit-jupiter:1.17.5")
+    testImplementation("org.testcontainers:testcontainers:1.17.5")
 }
 
 val pluginName = "Jenkins Pipeline Linter Gradle Plugin"

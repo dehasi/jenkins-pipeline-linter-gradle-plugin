@@ -77,34 +77,6 @@ internal class LinterPluginFunctionalTest {
         assert(result.output.contains("useCrumbIssuer=true")) { "result.output=${result.output}" }
     }
 
-    @Test fun `lint prints file content`() {
-        val jenkinsFile = File(testProjectDir, "jenkinsfile")
-        jenkinsFile.writeText("""
-            jenkinsfile content
-        """)
-        gradleBuildFile.appendText("""
-            import static me.dehasi.jenkins.linter.LinterExtension.ActionOnFailure.WARNING
-            $SETTINGS_ROOT {
-                 pipelinePath = ['jenkinsfile']
-                 actionOnFailure = WARNING
-                 jenkins {
-                    url = 'http://localhost:8080'
-                    username = 'admin'
-                    password = 'admin'
-                 }
-            }
-        """)
-
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments(LINT_TASK_NAME)
-            .withPluginClasspath()
-            .build()
-
-        assert(result.output.contains("jenkinsfile content")) { "result.output=${result.output}" }
-        assert(result.task(":${LINT_TASK_NAME}")?.outcome == SUCCESS) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
-    }
-
     @Test fun `lint skips not existing files`() {
         gradleBuildFile.appendText("""
             $SETTINGS_ROOT {

@@ -108,7 +108,7 @@ docker run --rm --detach --name myjenkins \
   --env JENKINS_OPTS='--argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin --argumentsRealm.roles.admin=admin' \
   --env JAVA_OPTS='-Djenkins.install.runSetupWizard=false' \
   --publish 8080:8080 \
-    myjenkins:2.361.1-1
+    dehasi/jenkins-with-pipeline-model-definition:2.361.1-1
 ----
 
 Then we can call `/pipeline-model-converter/validate`.
@@ -304,19 +304,40 @@ repositories {
 }
 ----
 
+Sometimes it takes days when Maven Central sync.
+
+== TestContainers
+
+I pushed my docker image
+----
+docker image push  dehasi/jenkins-with-pipeline-model-definition:2.361.1-1
+----
+
+I added dependencies
+----
+testImplementation("org.junit.jupiter:junit-jupiter:5.8.1") // works without it
+testImplementation("org.testcontainers:testcontainers:1.17.5")
+testImplementation("org.testcontainers:junit-jupiter:1.17.5")
+----
+
+Testcontainers expose port to a random one, that's why I have to explicitly use `firstMappedPort` or `getMappedPort`
+
+It takes time for initialising, that's why I check it `waitingFor(forHttp("/"));`.
+
+
 == ToDo
 
 .todo
-- [ ] Release to maven central or create a ticket like https://issues.sonatype.org/browse/OSSRH-58644[OSSRH-58644]
 - [ ] Add an assertion that all necessary properties are set
 - [ ] Check with https
 - [ ] Find less broad name for the task, current "lint" is too broad
-- [ ] *Maybe* Add jenkins as test container, extract some functional tests to unit tests maybe
 - [ ] Use nice assertions, like assertj
 - [ ] Use jenkins crumble
 - [ ] Add debug/trace logging
 - [ ] Add readme
 - [ ] Test Jenkins returning 404, 500.
+- [ ] *Maybe* use `speck`
+- [ ] Run only one testcontainer for all test suites
 
 .done
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
@@ -333,3 +354,5 @@ repositories {
 - [x] *Maybe* rewrite functional tests to kotlin
 - [x] Add boolean properties: trustSelfSigned, ignoreCertificate, useCrumbIssuer
 - [x] Add property: onError: FAIL/WARING
+- [x] Release to maven central or create a ticket like https://issues.sonatype.org/browse/OSSRH-58644[OSSRH-58644]
+- [x] *Maybe* Add jenkins as test container, extract some functional tests to unit tests maybe

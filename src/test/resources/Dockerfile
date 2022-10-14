@@ -15,4 +15,4 @@ RUN apt-get update && apt-get install -y docker-ce-cli
 USER jenkins
 RUN jenkins-plugin-cli --plugins pipeline-model-definition
 
-# docker build -t myjenkins:2.361.1-1 .
+# docker build -t dehasi/jenkins-with-pipeline-model-definition:2.361.1-1 .
