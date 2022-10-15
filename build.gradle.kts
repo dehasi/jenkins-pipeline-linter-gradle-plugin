@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm").version("1.5.31")
+    kotlin("jvm").version("1.7.20")
     `java-gradle-plugin`
     `maven-publish`
     signing
@@ -14,9 +14,10 @@ if (isPublishing) {
     project.version = "LATEST-SNAPSHOT"
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_1_8
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
 }
 
 repositories {
