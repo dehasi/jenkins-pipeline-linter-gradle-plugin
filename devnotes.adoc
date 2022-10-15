@@ -334,7 +334,6 @@ It takes time for initialising, that's why I check it `waitingFor(forHttp("/"));
 - [ ] Use nice assertions, like assertj
 - [ ] Use jenkins crumble
 - [ ] Add debug/trace logging
-- [ ] Add readme
 - [ ] Test Jenkins returning 404, 500.
 - [ ] *Maybe* use `speck`
 - [ ] Run only one testcontainer for all test suites
@@ -356,3 +355,5 @@ It takes time for initialising, that's why I check it `waitingFor(forHttp("/"));
 - [x] Add property: onError: FAIL/WARING
 - [x] Release to maven central or create a ticket like https://issues.sonatype.org/browse/OSSRH-58644[OSSRH-58644]
 - [x] *Maybe* Add jenkins as test container, extract some functional tests to unit tests maybe
+- [x] Add license
+- [x] Add readme

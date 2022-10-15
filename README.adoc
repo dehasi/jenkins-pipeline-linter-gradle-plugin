@@ -1,0 +1,45 @@
+= Jenkins Pipeline Linter Gradle Plugin
+
+image:https://maven-badges.herokuapp.com/maven-central/me.dehasi/jenkins-pipeline-linter-gradle-plugin/badge.svg[link="https://maven-badges.herokuapp.com/maven-central/me.dehasi/jenkins-pipeline-linter-gradle-plugin"]
+image:https://img.shields.io/github/license/dehasi/jenkins-pipeline-linter-gradle-plugin?color=blue&label=licence[GitHub]
+
+Gradle plugin to validate Jenkins pipelines. It uses Jenkins https://www.jenkins.io/doc/book/pipeline/development/#linter[linter] and sends files by HTTP POST. To validate pipeline, Jenkins `pipeline-model-definition` plugin needs to be installed.
+
+== Example
+.gradle.build
+[source, groovy]
+----
+import static me.dehasi.jenkins.linter.LinterExtension.ActionOnFailure.FAIL_BUILD
+
+plugins {
+    id 'me.dehasi.jenkins-pipeline-linter' version '${VERSION}'
+}
+
+jenkinsPipelineLinter {
+     pipelinePath = ['path/to/jenkinsfile1', 'path/to/jenkinsfile2']
+     actionOnFailure = FAIL_BUILD // or WARNING
+     jenkins {
+        url = 'http://jenkins.url}'
+        username = '${USERNAME}'
+        password = '${PASSWORD}'
+     }
+}
+----
+
+== Run
+[source, shell script]
+----
+$ gradle lint
+Validating 2 files
+Validating 'path/to/jenkinsfile1'
+Jenkinsfile successfully validated.
+
+Validating 'path/to/jenkinsfile2'
+WorkflowScript: 2: Not a valid section definition: "agent". Some extra configuration is required. @ line 2, column 3.
+     agent
+     ^
+
+WorkflowScript: 1: Missing required section "agent" @ line 1, column 1.
+   pipeline {
+   ^
+----
