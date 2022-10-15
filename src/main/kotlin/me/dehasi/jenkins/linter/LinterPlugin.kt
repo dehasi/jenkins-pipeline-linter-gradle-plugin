@@ -24,7 +24,10 @@ class LinterPlugin : Plugin<Project> {
             val jenkins = extension.getJenkinsExtension()
             it.getJenkinsGateway()
                 .set(jenkinsGateway(
-                    httpClient(jenkins.username.get(), jenkins.password.get()),
+                    httpClient(
+                        username = jenkins.username.get(),
+                        password = jenkins.password.get(),
+                        ignoreCertificate = jenkins.ignoreCertificate.get()),
                     jenkins.url.get()))
         }
     }
@@ -40,10 +43,9 @@ class LinterPlugin : Plugin<Project> {
         log.info("username={}", jenkins.username.get())
         log.info("password={}", jenkins.password.get())
         log.info("ignoreCertificate={}", jenkins.ignoreCertificate.get())
-        log.info("trustSelfSigned={}", jenkins.trustSelfSigned.get())
-        log.info("useCrumbIssuer={}", jenkins.useCrumbIssuer.get())
+        log.info("trustSelfSigned={}, trustSelfSigned is not implemented yet", jenkins.trustSelfSigned.get())
+        log.info("useCrumbIssuer={}, useCrumbIssuer is not implemented yet", jenkins.useCrumbIssuer.get())
 
-        if (jenkins.ignoreCertificate.get()) log.warn("ignoreCertificate is not implemented yet")
         if (jenkins.trustSelfSigned.get()) log.warn("trustSelfSigned is not implemented yet")
         if (jenkins.useCrumbIssuer.get()) log.warn("useCrumbIssuer is not implemented yet")
     }

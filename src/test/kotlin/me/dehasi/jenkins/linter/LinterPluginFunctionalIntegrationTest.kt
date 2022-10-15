@@ -2,6 +2,7 @@ package me.dehasi.jenkins.linter
 
 import me.dehasi.jenkins.linter.Constants.LINT_TASK_NAME
 import me.dehasi.jenkins.linter.Constants.SETTINGS_ROOT
+import me.dehasi.jenkins.linter.JenkinsContainer.Companion.HTTPS_PORT
 import me.dehasi.jenkins.linter.Jenkinsfiles.CORRECT_JENKINSFILE_CONTENT
 import me.dehasi.jenkins.linter.Jenkinsfiles.INCORRECT_JENKINSFILE_CONTENT
 import org.gradle.testkit.runner.GradleRunner
@@ -22,6 +23,7 @@ internal class LinterPluginFunctionalIntegrationTest {
 
     @Container private val jenkins = JenkinsContainer().apply {
         withUser(USERNAME, PASSWORD)
+        withTLS()
     }
 
     @TempDir lateinit var testProjectDir: File
@@ -46,9 +48,10 @@ internal class LinterPluginFunctionalIntegrationTest {
                  pipelinePath = ['jenkinsfile']
                  actionOnFailure = WARNING
                  jenkins {
-                    url = 'http://localhost:${jenkins.firstMappedPort}'
+                    url = 'https://localhost:${jenkins.getMappedPort(HTTPS_PORT)}'
                     username = '$USERNAME'
                     password = '$PASSWORD'
+                    ignoreCertificate()
                  }
             }
         """)
@@ -74,9 +77,10 @@ internal class LinterPluginFunctionalIntegrationTest {
                  pipelinePath = ['jenkinsfile']
                  actionOnFailure = WARNING
                  jenkins {
-                    url = 'http://localhost:${jenkins.firstMappedPort}'
+                    url = 'https://localhost:${jenkins.getMappedPort(HTTPS_PORT)}'
                     username = '$USERNAME'
                     password = '$PASSWORD'
+                    ignoreCertificate()
                  }
             }
         """)
@@ -102,9 +106,10 @@ internal class LinterPluginFunctionalIntegrationTest {
                  pipelinePath = ['jenkinsfile']
                  actionOnFailure = FAIL_BUILD
                  jenkins {
-                    url = 'http://localhost:${jenkins.firstMappedPort}'
+                    url = 'https://localhost:${jenkins.getMappedPort(HTTPS_PORT)}'
                     username = '$USERNAME'
                     password = '$PASSWORD'
+                    ignoreCertificate()
                  }
             }
         """)

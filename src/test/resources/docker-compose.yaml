@@ -1,0 +1,23 @@
+version: '3.7'
+services:
+  jenkins:
+    image: dehasi/jenkins-with-pipeline-model-definition:2.361.1-1
+    container_name: myjenkins
+    restart: always
+    privileged: true
+    user: root
+    ports:
+      - 8080:8080
+      - 8443:8443
+    volumes:
+      - ./jenkins.jks:/var/lib/jenkins/jenkins.jks
+    environment:
+      JENKINS_OPTS: >
+        --argumentsRealm.roles.user=admin
+        --argumentsRealm.passwd.admin=pass
+        --argumentsRealm.roles.admin=admin
+        --httpPort=8080
+        --httpsPort=8443
+        --httpsKeyStorePassword=password
+        --httpsKeyStore=/var/lib/jenkins/jenkins.jks
+      JAVA_OPTS: -Djenkins.install.runSetupWizard=false

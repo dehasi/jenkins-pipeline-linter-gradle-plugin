@@ -326,19 +326,54 @@ Testcontainers expose port to a random one, that's why I have to explicitly use 
 
 It takes time for initialising, that's why I check it `waitingFor(forHttp("/"));`.
 
+== TLS
+
+Generate certificate
+----
+keytool -genkey -keyalg RSA -alias selfsigned -keystore jenkins.jks -storepass password -keysize 4096
+----
+
+Run docker with the following params
+[source,yaml]
+----
+include::src/test/resources/docker-compose.yaml[]
+----
+
+----
+$ curl  -X POST --user admin:admin  -F "jenkinsfile=<jenkinsfile_valid"  https://localhost:8443/pipeline-model-converter/validate
+curl: (60) SSL certificate problem: self signed certificate
+More details here: https://curl.haxx.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+----
+
+----
+$ curl  -X POST --user admin:admin  -F "jenkinsfile=<jenkinsfile_valid" --insecure  https://localhost:8443/pipeline-model-converter/validate
+Jenkinsfile successfully validated.
+----
+
+To avoid `No name matching localhost found` exception, use "localhost" for  first and last name while generating cert.
+
+----
+What is your first and last name?
+[Unknown]:  localhost
+----
 
 == ToDo
 
 .todo
 - [ ] Add an assertion that all necessary properties are set
-- [ ] Check with https
 - [ ] Find less broad name for the task, current "lint" is too broad
 - [ ] Use nice assertions, like assertj
-- [ ] Use jenkins crumble
+- [ ] Use jenkins crumble; implement `useCrumbIssuer`
 - [ ] Add debug/trace logging
 - [ ] Test Jenkins returning 404, 500.
 - [ ] *Maybe* use `speck`
-- [ ] Run only one testcontainer for all test suites
+- [ ] Run only one testcontainer for all test suites; fix stucking in "Finished Download metadata"
+- [ ] Add `connectionTimeout` property
+- [ ] Implement `trustSelfSigned`
 
 .done
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
@@ -359,3 +394,4 @@ It takes time for initialising, that's why I check it `waitingFor(forHttp("/"));
 - [x] *Maybe* Add jenkins as test container, extract some functional tests to unit tests maybe
 - [x] Add license
 - [x] Add readme
+- [x] Check with https

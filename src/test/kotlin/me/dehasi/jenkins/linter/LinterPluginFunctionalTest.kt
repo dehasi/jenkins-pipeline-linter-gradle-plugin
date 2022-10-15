@@ -50,8 +50,8 @@ internal class LinterPluginFunctionalTest {
                     url = 'http://jenkins.example'
                     username = 'jenkins_username'
                     password = 'jenkins_password'
-                    trustSelfSigned()
                     ignoreCertificate()
+                    trustSelfSigned()
                     useCrumbIssuer()
                  }
             }
@@ -73,8 +73,8 @@ internal class LinterPluginFunctionalTest {
         assert(result.output.contains("password=jenkins_password")) { "result.output=${result.output}" }
 
         assert(result.output.contains("ignoreCertificate=true")) { "result.output=${result.output}" }
-        assert(result.output.contains("trustSelfSigned=true")) { "result.output=${result.output}" }
-        assert(result.output.contains("useCrumbIssuer=true")) { "result.output=${result.output}" }
+        assert(result.output.contains("trustSelfSigned=true, trustSelfSigned is not implemented yet")) { "result.output=${result.output}" }
+        assert(result.output.contains("useCrumbIssuer=true, useCrumbIssuer is not implemented yet")) { "result.output=${result.output}" }
     }
 
     @Test fun `lint skips not existing files`() {

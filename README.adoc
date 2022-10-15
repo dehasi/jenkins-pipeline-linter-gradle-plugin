@@ -19,7 +19,8 @@ jenkinsPipelineLinter {
      pipelinePath = ['path/to/jenkinsfile1', 'path/to/jenkinsfile2']
      actionOnFailure = FAIL_BUILD // or WARNING
      jenkins {
-        url = 'http://jenkins.example'
+        url = 'https://jenkins.example'
+        ignoreCertificate()
         username = '${USERNAME}'
         password = '${PASSWORD}'
      }
