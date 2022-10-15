@@ -14,20 +14,20 @@ abstract class LinterTask : DefaultTask() {
     @Input abstract fun getActionOnFailure(): Property<ActionOnFailure>
     @Input abstract fun getJenkinsGateway(): Property<JenkinsGateway>
 
-    private var errors = 0;
+    private var errorCount = 0;
     @TaskAction fun lint() {
         val paths = getPipelinePath().get()
         logger.lifecycle("Validating {} files", paths.size)
 
-        errors = 0
+        errorCount = 0
         paths
             .map { toAbsoluteFile(it) }
             .filter { fileExists(it) }
             .forEach { validate(it) }
-        logger.lifecycle("Validation finished")
+        logger.lifecycle("Validation finished with $errorCount errors.")
 
-        if (errors != 0) {
-            val message = "$errors during validation jenkins pipelines"
+        if (errorCount != 0) {
+            val message = "$errorCount errors encountered validating files."
             if (getActionOnFailure().get() == WARNING) logger.warn(message)
             else throw RuntimeException(message)
         }
@@ -35,15 +35,14 @@ abstract class LinterTask : DefaultTask() {
 
     private fun validate(file: File) {
         logger.lifecycle("Validating '{}'", file)
-        file.forEachLine { println(it) }
         val jenkinsGateway = getJenkinsGateway().get()
         try {
             val result = jenkinsGateway.validate(file.readText())
             logger.lifecycle(result)
             if (!result.contains("Jenkinsfile successfully validated"))
-                ++errors
+                ++errorCount
         } catch (e: Exception) {
-            ++errors
+            ++errorCount
             logger.error("{}", e)
         }
     }

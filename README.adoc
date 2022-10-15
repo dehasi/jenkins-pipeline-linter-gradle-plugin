@@ -19,7 +19,7 @@ jenkinsPipelineLinter {
      pipelinePath = ['path/to/jenkinsfile1', 'path/to/jenkinsfile2']
      actionOnFailure = FAIL_BUILD // or WARNING
      jenkins {
-        url = 'http://jenkins.url}'
+        url = 'http://jenkins.example'
         username = '${USERNAME}'
         password = '${PASSWORD}'
      }
@@ -30,11 +30,14 @@ jenkinsPipelineLinter {
 [source, shell script]
 ----
 $ gradle lint
+
+> Task :lint FAILED
 Validating 2 files
-Validating 'path/to/jenkinsfile1'
+Validating '/**/path/to/jenkinsfile1'
 Jenkinsfile successfully validated.
 
-Validating 'path/to/jenkinsfile2'
+Validating '/**/path/to/jenkinsfile2'
+Errors encountered validating Jenkinsfile:
 WorkflowScript: 2: Not a valid section definition: "agent". Some extra configuration is required. @ line 2, column 3.
      agent
      ^
@@ -42,4 +45,11 @@ WorkflowScript: 2: Not a valid section definition: "agent". Some extra configura
 WorkflowScript: 1: Missing required section "agent" @ line 1, column 1.
    pipeline {
    ^
+
+
+Validation finished with 1 errors.
+
+FAILURE: Build failed with an exception.
+
+BUILD FAILED in 705ms
 ----

@@ -60,6 +60,7 @@ internal class LinterPluginFunctionalIntegrationTest {
             .build()
 
         assert(result.output.contains("Jenkinsfile successfully validated.")) { "result.output=${result.output}" }
+        assert(result.output.contains("Validation finished with 0 errors.")) { "result.output=${result.output}" }
         assert(result.task(":${LINT_TASK_NAME}")?.outcome == SUCCESS) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
     }
 
@@ -87,6 +88,7 @@ internal class LinterPluginFunctionalIntegrationTest {
             .build()
 
         assert(result.output.contains("Errors encountered validating Jenkinsfile")) { "result.output=${result.output}" }
+        assert(result.output.contains("Validation finished with 1 errors.")) { "result.output=${result.output}" }
         assert(result.task(":${LINT_TASK_NAME}")?.outcome == SUCCESS) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
     }
 
@@ -114,6 +116,7 @@ internal class LinterPluginFunctionalIntegrationTest {
             .buildAndFail()
 
         assert(result.output.contains("Errors encountered validating Jenkinsfile")) { "result.output=${result.output}" }
+        assert(result.output.contains("Validation finished with 1 errors.")) { "result.output=${result.output}" }
         assert(result.task(":${LINT_TASK_NAME}")?.outcome == FAILED) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
     }
 }

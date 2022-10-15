@@ -61,6 +61,8 @@ pluginManagement {
 }
 ----
 
+then run `publishToMavenLocal`
+
 Add to `build.gradle`
 
 ----
