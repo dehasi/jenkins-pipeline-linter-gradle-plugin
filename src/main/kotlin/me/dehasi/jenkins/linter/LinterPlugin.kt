@@ -19,6 +19,7 @@ class LinterPlugin : Plugin<Project> {
 
         project.tasks.register(LINT_TASK_NAME, LinterTask::class.java) {
             logLinterParams(extension)
+            assertRequiredFields(extension)
             it.getPipelinePath().set(extension.pipelinePath.get())
             it.getActionOnFailure().set(extension.actionOnFailure.get())
             val jenkins = extension.getJenkinsExtension()
@@ -30,6 +31,14 @@ class LinterPlugin : Plugin<Project> {
                         ignoreCertificate = jenkins.ignoreCertificate.get()),
                     jenkins.url.get()))
         }
+    }
+
+    private fun assertRequiredFields(extension: LinterExtension) {
+        check(extension.pipelinePath.get().isNotEmpty()) { "pipelinePath needs to be set." }
+
+        check(extension.getJenkinsExtension().url.get().isNotEmpty()) { "jenkins.url needs to be set." }
+        check(extension.getJenkinsExtension().username.get().isNotEmpty()) { "jenkins.username needs to be set." }
+        check(extension.getJenkinsExtension().password.get().isNotEmpty()) { "jenkins.password needs to be set." }
     }
 
     private fun logLinterParams(extension: LinterExtension) {

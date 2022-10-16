@@ -3,6 +3,7 @@ package me.dehasi.jenkins.linter
 import me.dehasi.jenkins.linter.Constants.LINT_TASK_NAME
 import me.dehasi.jenkins.linter.Constants.SETTINGS_ROOT
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,6 +28,11 @@ internal class LinterPluginFunctionalTest {
         gradleBuildFile.appendText("""
             $SETTINGS_ROOT {
                  pipelinePath = ['jenkinsfile1', 'jenkinsfile2', 'jenkinsfile3']
+                 jenkins {
+                    url = 'http://jenkins.example'
+                    username = 'jenkins_username'
+                    password = 'jenkins_password'
+                 }
             }
         """)
 
@@ -81,6 +87,11 @@ internal class LinterPluginFunctionalTest {
         gradleBuildFile.appendText("""
             $SETTINGS_ROOT {
                  pipelinePath = ['jenkinsfile1']
+                 jenkins {
+                    url = 'http://jenkins.example'
+                    username = 'jenkins_username'
+                    password = 'jenkins_password'
+                 }
             }
         """)
 
@@ -101,6 +112,11 @@ internal class LinterPluginFunctionalTest {
         gradleBuildFile.appendText("""
             $SETTINGS_ROOT {
                  pipelinePath = ['dir1']
+                 jenkins {
+                    url = 'http://jenkins.example'
+                    username = 'jenkins_username'
+                    password = 'jenkins_password'
+                 }
             }
         """)
 
@@ -112,5 +128,89 @@ internal class LinterPluginFunctionalTest {
 
         assert(result.output.contains("File '${testProjectDir.canonicalPath}/dir1' is a directory. Skipping")) { "result.output=${result.output}" }
         assert(result.task(":${LINT_TASK_NAME}")?.outcome == SUCCESS) { "result.task=" + result.task(":${LINT_TASK_NAME}") }
+    }
+
+    @Test fun `lint pipelinePath is not set fails build`() {
+        gradleBuildFile.appendText("""
+            $SETTINGS_ROOT {
+                 pipelinePath = []
+                 jenkins {
+                    url = 'http://jenkins.example'
+                    username = 'jenkins_username'
+                    password = 'jenkins_password'
+                 }
+            }
+        """)
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments(LINT_TASK_NAME)
+            .withPluginClasspath()
+            .buildAndFail()
+
+        assert(result.output.contains("pipelinePath needs to be set.")) { "result.output=${result.output}" }
+    }
+
+    @Test fun `lint url is not set fails build`() {
+        gradleBuildFile.appendText("""
+            $SETTINGS_ROOT {
+                 pipelinePath = ['jenkinsfile']
+                 jenkins {
+                    // url = 'http://jenkins.example'
+                    username = 'jenkins_username'
+                    password = 'jenkins_password'
+                 }
+            }
+        """)
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments(LINT_TASK_NAME)
+            .withPluginClasspath()
+            .buildAndFail()
+
+        assert(result.output.contains("jenkins.url needs to be set.")) { "result.output=${result.output}" }
+    }
+
+    @Test fun `lint username is not set fails build`() {
+        gradleBuildFile.appendText("""
+            $SETTINGS_ROOT {
+                 pipelinePath = ['jenkinsfile']
+                 jenkins {
+                    url = 'http://jenkins.example'
+                    // username = 'jenkins_username'
+                    password = 'jenkins_password'
+                 }
+            }
+        """)
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments(LINT_TASK_NAME)
+            .withPluginClasspath()
+            .buildAndFail()
+
+        assert(result.output.contains("jenkins.username needs to be set.")) { "result.output=${result.output}" }
+    }
+
+    @Test fun `lint password is not set fails build`() {
+        gradleBuildFile.appendText("""
+            $SETTINGS_ROOT {
+                 pipelinePath = ['jenkinsfile']
+                 jenkins {
+                    url = 'http://jenkins.example'
+                    username = 'jenkins_username'
+                    // password = 'jenkins_password'
+                 }
+            }
+        """)
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments(LINT_TASK_NAME)
+            .withPluginClasspath()
+            .buildAndFail()
+
+        assert(result.output.contains("jenkins.password needs to be set.")) { "result.output=${result.output}" }
     }
 }

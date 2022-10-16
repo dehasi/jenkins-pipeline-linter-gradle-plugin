@@ -364,16 +364,15 @@ What is your first and last name?
 == ToDo
 
 .todo
-- [ ] Add an assertion that all necessary properties are set
-- [ ] Find less broad name for the task, current "lint" is too broad
-- [ ] Use nice assertions, like assertj
-- [ ] Use jenkins crumble; implement `useCrumbIssuer`
-- [ ] Add debug/trace logging
-- [ ] Test Jenkins returning 404, 500.
-- [ ] *Maybe* use `speck`
 - [ ] Run only one testcontainer for all test suites; fix stucking in "Finished Download metadata"
 - [ ] Add `connectionTimeout` property
+- [ ] Test Jenkins returning 404, 500.
+- [ ] Find less broad name for the task, current "lint" is too broad
+- [ ] Add debug/trace logging
 - [ ] Implement `trustSelfSigned`
+- [ ] Use jenkins crumble; implement `useCrumbIssuer`
+- [ ] Use nice assertions, like assertj
+- [ ] *Maybe* use `speck`
 
 .done
 - [x] Maybe rename to `jenkins-pipeline-linter-gradle-plugin`
@@ -395,3 +394,4 @@ What is your first and last name?
 - [x] Add license
 - [x] Add readme
 - [x] Check with https
+- [x] Add an assertion that all necessary properties are set
