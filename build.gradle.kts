@@ -28,6 +28,8 @@ dependencies {
     implementation(gradleApi())
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
 
+    testImplementation("com.github.tomakehurst:wiremock:2.27.2")
+
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.0")

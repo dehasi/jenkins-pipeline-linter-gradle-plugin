@@ -361,6 +361,50 @@ What is your first and last name?
 [Unknown]:  localhost
 ----
 
+== Wiremock multipart request
+Wiremock treats `Content-Disposition` as a header
+[source, java]
+----
+ public MultipartValuePatternBuilder withName(String name) {
+        this.name = name;
+        return withHeader("Content-Disposition", containing("name=\"" + name + "\""));
+    }
+----
+
+but actually it's a body. Example using `curl`.
+----
+$ curl --user admin:admin -X POST  -F "jenkinsfile=<jenkinsfile_valid" http://localhost:8080/pipeline-model-converter/validate
+$ nc -l 8080
+POST /pipeline-model-converter/validate HTTP/1.1
+Host: localhost:8080
+Authorization: Basic YWRtaW46YWRtaW4=
+User-Agent: curl/7.64.1
+Accept: */*
+Content-Length: 268
+Content-Type: multipart/form-data; boundary=------------------------b082a35083bc1514
+
+--------------------------b082a35083bc1514
+Content-Disposition: form-data; name="jenkinsfile"
+
+pipeline {
+  agent any
+  stages {
+    stage ('Initialize') {
+      steps {
+        echo 'Placeholder.'
+      }
+    }
+  }
+}
+--------------------------b082a35083bc1514--
+----
+
+That's why I mocked it as just a general request body.
+
+== Jenkins
+
+`-Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true` should turn off crumble requirement.
+
 == ToDo
 
 .todo
@@ -395,3 +439,5 @@ What is your first and last name?
 - [x] Add readme
 - [x] Check with https
 - [x] Add an assertion that all necessary properties are set
+- [x] Fix authorisation bug
+- [x] Use wiremock

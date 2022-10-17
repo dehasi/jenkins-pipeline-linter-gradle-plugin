@@ -25,11 +25,8 @@ class LinterPlugin : Plugin<Project> {
             val jenkins = extension.getJenkinsExtension()
             it.getJenkinsGateway()
                 .set(jenkinsGateway(
-                    httpClient(
-                        username = jenkins.username.get(),
-                        password = jenkins.password.get(),
-                        ignoreCertificate = jenkins.ignoreCertificate.get()),
-                    jenkins.url.get()))
+                    httpClient(ignoreCertificate = jenkins.ignoreCertificate.get()),
+                    jenkins.url.get(), Credentials(jenkins.username.get(), jenkins.password.get())))
         }
     }
 

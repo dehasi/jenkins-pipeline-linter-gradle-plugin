@@ -1,9 +1,7 @@
 package me.dehasi.jenkins.linter
 
-import java.net.Authenticator
-import java.net.PasswordAuthentication
 import java.net.http.HttpClient
-import java.net.http.HttpClient.Version.HTTP_2
+import java.net.http.HttpClient.Version.HTTP_1_1
 import java.security.KeyManagementException
 import java.security.NoSuchAlgorithmException
 import java.security.cert.X509Certificate
@@ -14,25 +12,18 @@ import javax.net.ssl.X509TrustManager
 
 object DependencyInjection {
 
-    fun jenkinsGateway(client: HttpClient, baseUrl: String): JenkinsGateway {
-        return JenkinsGateway(client, baseUrl)
+    fun jenkinsGateway(client: HttpClient, baseUrl: String, credentials: Credentials): JenkinsGateway {
+        return JenkinsGateway(client, baseUrl, credentials)
     }
 
     fun httpClient(
-        username: String,
-        password: String,
         timeoutSeconds: Long = 60,
         ignoreCertificate: Boolean = false
     ): HttpClient {
 
         val httpClientBuilder = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(timeoutSeconds))
-            .authenticator(object : Authenticator() {
-                override fun getPasswordAuthentication(): PasswordAuthentication {
-                    return PasswordAuthentication(username, password.toCharArray())
-                }
-            })
-            .version(HTTP_2)
+            .version(HTTP_1_1)
 
         if (ignoreCertificate) httpClientBuilder.sslContext(insecureContext())
         return httpClientBuilder.build()

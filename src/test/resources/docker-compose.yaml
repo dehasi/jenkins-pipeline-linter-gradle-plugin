@@ -11,6 +11,7 @@ services:
       - 8443:8443
     volumes:
       - ./jenkins.jks:/var/lib/jenkins/jenkins.jks
+      - ./jenkins_home:/var/jenkins_home
     environment:
       JENKINS_OPTS: >
         --argumentsRealm.roles.user=admin
@@ -20,4 +21,6 @@ services:
         --httpsPort=8443
         --httpsKeyStorePassword=password
         --httpsKeyStore=/var/lib/jenkins/jenkins.jks
-      JAVA_OPTS: -Djenkins.install.runSetupWizard=false
+      JAVA_OPTS: >
+        -Djenkins.install.runSetupWizard=false
+        -Dhudson.security.csrf.GlobalCrumbIssuerConfiguration.DISABLE_CSRF_PROTECTION=true
